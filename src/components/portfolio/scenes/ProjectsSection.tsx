@@ -1,20 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, ExternalLink, FileText, Hammer } from "lucide-react";
+import { ArrowUpRight, Github, ExternalLink, FileText, Hammer } from "lucide-react";
 import TiltCard from "../TiltCard";
 import MagneticButton from "../MagneticButton";
-import CaseStudyModal from "../CaseStudyModal";
 
 /**
  * ProjectsSection — DOM overlay for Scene 4.
  *
- * One completed project (Davaam Website Recreation) shown as a full
- * case-study card with tech stack, live demo, and a case study link
- * that opens an in-page modal. Two future projects (Unity Survival
- * Game, SaaS App) shown with a deliberately different "Currently
- * Building" treatment.
+ * Two completed projects (Davaam Website Recreation, DV Smart) shown as
+ * full case-study cards with tech stack, GitHub, live demo, and a case
+ * study link. Two future projects (Unity Survival Game, SaaS App) shown
+ * with a deliberately different "Currently Building" treatment.
  */
 
 interface CompletedProject {
@@ -24,6 +21,7 @@ interface CompletedProject {
   description: string;
   features: string[];
   stack: string[];
+  github?: string;
   demo?: string;
   hasCaseStudy?: boolean;
 }
@@ -50,14 +48,31 @@ const COMPLETED: CompletedProject[] = [
       "Optimized asset pipeline",
     ],
     stack: ["HTML5", "CSS3", "JavaScript", "GSAP"],
-    demo: "https://davaam.vercel.app",
+    github: "https://github.com/",
+    demo: "https://example.com/",
     hasCaseStudy: true,
+  },
+  {
+    index: "02",
+    title: "DV Smart",
+    tagline: "Modern industrial website for an industrial brand.",
+    description:
+      "A modern industrial website built for DV Smart — clean grid layouts, restrained motion, and a strong content hierarchy that lets the products lead. Designed to load fast on slower connections while still feeling premium on a flagship device.",
+    features: [
+      "Industrial-strength layout system",
+      "Lazy-loaded media gallery",
+      "Mobile-first responsive grid",
+      "Accessible navigation patterns",
+    ],
+    stack: ["HTML5", "CSS3", "JavaScript", "Tailwind"],
+    github: "https://github.com/",
+    demo: "https://example.com/",
   },
 ];
 
 const FUTURE: FutureProject[] = [
   {
-    index: "02",
+    index: "03",
     title: "Unity Survival Game",
     status: "Currently Building",
     description:
@@ -65,7 +80,7 @@ const FUTURE: FutureProject[] = [
     eta: "In Progress",
   },
   {
-    index: "03",
+    index: "04",
     title: "SaaS Application",
     status: "Currently Building",
     description:
@@ -75,8 +90,6 @@ const FUTURE: FutureProject[] = [
 ];
 
 export function ProjectsSection() {
-  const [caseStudyOpen, setCaseStudyOpen] = useState(false);
-
   return (
     <section
       className="relative min-h-screen w-full px-6 py-24 sm:py-32"
@@ -182,11 +195,21 @@ export function ProjectsSection() {
                             Live Demo
                           </MagneticButton>
                         )}
+                        {p.github && (
+                          <MagneticButton
+                            href={p.github}
+                            variant="ghost"
+                            ariaLabel={`GitHub repository for ${p.title}`}
+                          >
+                            <Github className="h-4 w-4" />
+                            GitHub
+                          </MagneticButton>
+                        )}
                         {p.hasCaseStudy && (
                           <MagneticButton
+                            href={p.demo}
                             variant="outline"
                             ariaLabel={`Case study for ${p.title}`}
-                            onClick={() => setCaseStudyOpen(true)}
                           >
                             <FileText className="h-4 w-4" />
                             Case Study
@@ -247,12 +270,6 @@ export function ProjectsSection() {
           </div>
         </div>
       </div>
-
-      {/* Case Study Modal */}
-      <CaseStudyModal
-        open={caseStudyOpen}
-        onClose={() => setCaseStudyOpen(false)}
-      />
     </section>
   );
 }

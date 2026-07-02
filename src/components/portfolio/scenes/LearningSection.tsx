@@ -28,8 +28,8 @@ const MILESTONES: Milestone[] = [
     state: "done",
   },
   {
-    label: "Exploring Three.js & 3D Web",
-    detail: "Diving into immersive WebGL — shaders, particle systems, and scroll-driven cinematic camera work for the browser.",
+    label: "Learning JavaScript",
+    detail: "Going deeper than syntax — async, prototypes, performance, and engine internals.",
     state: "active",
   },
   {

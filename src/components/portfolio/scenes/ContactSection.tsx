@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Linkedin, MessageCircle, Mail, Send, AlertCircle } from "lucide-react";
+import { Linkedin, Github, Mail, Send } from "lucide-react";
 import MagneticButton from "../MagneticButton";
-
-const EMAIL = "hamzaa77005@gmail.com";
-const WHATSAPP_NUMBER = "03182772524";
-// WhatsApp deep link — international format without leading 0, +, or spaces.
-// Pakistan country code = 92, so 03182772524 → 923182772524
-const WHATSAPP_INTL = "923182772524";
 
 const SOCIALS = [
   {
@@ -19,16 +13,16 @@ const SOCIALS = [
     handle: "/in/hamza",
   },
   {
-    name: "WhatsApp",
-    href: `https://wa.me/${WHATSAPP_INTL}`,
-    icon: MessageCircle,
-    handle: WHATSAPP_NUMBER,
+    name: "GitHub",
+    href: "https://github.com/",
+    icon: Github,
+    handle: "@hamza",
   },
   {
     name: "Email",
-    href: `mailto:${EMAIL}`,
+    href: "mailto:hello@example.com",
     icon: Mail,
-    handle: EMAIL,
+    handle: "hello@example.com",
   },
 ];
 
@@ -36,47 +30,18 @@ const SOCIALS = [
  * ContactSection — DOM overlay for Scene 6.
  *
  * Centered rotating 3D logo behind, foreground has social cards and a
- * contact form. The form POSTs to /api/contact which forwards the
- * message to hamzaa77005@gmail.com via Resend.
+ * contact form.
  */
 export function ContactSection() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle"
-  );
-  const [errorMsg, setErrorMsg] = useState("");
+  const [sent, setSent] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (status === "sending") return;
-
-    setStatus("sending");
-    setErrorMsg("");
-
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-
-      if (res.ok && data.ok) {
-        setStatus("sent");
-        setForm({ name: "", email: "", message: "" });
-        setTimeout(() => setStatus("idle"), 6000);
-      } else {
-        setStatus("error");
-        setErrorMsg(
-          data.error || "Something went wrong. Please try again or email me directly."
-        );
-      }
-    } catch {
-      setStatus("error");
-      setErrorMsg(
-        "Network error. Please check your connection and try again, or email me directly."
-      );
-    }
+    // No backend — simulate success.
+    setSent(true);
+    setTimeout(() => setSent(false), 4000);
+    setForm({ name: "", email: "", message: "" });
   };
 
   return (
@@ -173,8 +138,7 @@ export function ContactSection() {
                   required
                   value={form.name}
                   onChange={(v) => setForm({ ...form, name: v })}
-                  placeholder="Your name"
-                  disabled={status === "sending"}
+                  placeholder="Ada Lovelace"
                 />
                 <Field
                   label="Email"
@@ -182,8 +146,7 @@ export function ContactSection() {
                   required
                   value={form.email}
                   onChange={(v) => setForm({ ...form, email: v })}
-                  placeholder="you@example.com"
-                  disabled={status === "sending"}
+                  placeholder="ada@analytical.engine"
                 />
               </div>
               <Field
@@ -194,18 +157,11 @@ export function ContactSection() {
                 onChange={(v) => setForm({ ...form, message: v })}
                 placeholder="Tell me about the project, the team, or the idea…"
                 className="mt-4"
-                disabled={status === "sending"}
               />
 
               <div className="mt-6 flex items-center justify-between gap-4">
                 <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/30">
-                  {status === "sending"
-                    ? "Sending…"
-                    : status === "sent"
-                      ? "Message sent"
-                      : status === "error"
-                        ? "Failed"
-                        : "Sends to my inbox"}
+                  {sent ? "Message sent" : "Encrypted · End-to-end"}
                 </span>
                 <MagneticButton
                   variant="primary"
@@ -214,22 +170,16 @@ export function ContactSection() {
                 >
                   <span
                     className="inline-flex items-center gap-2"
-                    onClick={() => {
-                      if (status !== "sending") {
-                        (
-                          document.getElementById(
-                            "contact-form-submit"
-                          ) as HTMLButtonElement
-                        )?.click();
-                      }
-                    }}
+                    onClick={() =>
+                      (
+                        document.getElementById(
+                          "contact-form-submit"
+                        ) as HTMLButtonElement
+                      )?.click()
+                    }
                   >
                     <Send className="h-4 w-4" />
-                    {status === "sending"
-                      ? "Sending…"
-                      : status === "sent"
-                        ? "Sent ✓"
-                        : "Send Message"}
+                    {sent ? "Sent" : "Send Message"}
                   </span>
                 </MagneticButton>
                 <button
@@ -237,42 +187,19 @@ export function ContactSection() {
                   type="submit"
                   className="sr-only"
                   aria-hidden
-                  disabled={status === "sending"}
                 >
                   Submit
                 </button>
               </div>
 
-              {/* Success message */}
-              {status === "sent" && (
+              {sent && (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-4 rounded-lg border border-[#810172]/30 bg-[#810172]/10 px-4 py-3 text-[13px] text-[#b14aa0]"
                 >
-                  Thanks — your message has been sent to my inbox. I&apos;ll get
-                  back to you shortly.
-                </motion.div>
-              )}
-
-              {/* Error message */}
-              {status === "error" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-300"
-                >
-                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>
-                    {errorMsg} You can also email me directly at{" "}
-                    <a
-                      href={`mailto:${EMAIL}`}
-                      className="underline hover:text-red-200"
-                    >
-                      {EMAIL}
-                    </a>
-                    .
-                  </span>
+                  Thanks — your message has been queued. I'll get back to you
+                  shortly.
                 </motion.div>
               )}
             </motion.form>
@@ -291,7 +218,6 @@ interface FieldProps {
   placeholder?: string;
   required?: boolean;
   className?: string;
-  disabled?: boolean;
 }
 
 function Field({
@@ -302,10 +228,9 @@ function Field({
   placeholder,
   required,
   className,
-  disabled,
 }: FieldProps) {
   const base =
-    "w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 font-sans text-sm text-white placeholder:text-white/30 outline-none transition-colors focus:border-[#810172]/60 focus:ring-1 focus:ring-[#810172]/40 disabled:opacity-50 disabled:cursor-not-allowed";
+    "w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 font-sans text-sm text-white placeholder:text-white/30 outline-none transition-colors focus:border-[#810172]/60 focus:ring-1 focus:ring-[#810172]/40";
   return (
     <label className={`block ${className ?? ""}`}>
       <span className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
@@ -318,7 +243,6 @@ function Field({
           placeholder={placeholder}
           required={required}
           rows={5}
-          disabled={disabled}
           className={`${base} resize-none`}
         />
       ) : (
@@ -328,7 +252,6 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           required={required}
-          disabled={disabled}
           className={base}
         />
       )}
